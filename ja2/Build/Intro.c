@@ -515,7 +515,7 @@ void DisplaySirtechSplashScreen()
 //	FilenameForBPP("INTERFACE\\TShold.sti", VObjectDesc.ImageFile);
 	if( !AddVideoObject(&VObjectDesc, &uiLogoID) )
 	{	
-		AssertMsg( 0, String( "Failed to load %s", VObjectDesc.ImageFile ) );
+		FastDebugMsg(String("DisplaySirtechSplashScreen: failed to load %s, skipping splash", VObjectDesc.ImageFile));
 		return;
 	}
 

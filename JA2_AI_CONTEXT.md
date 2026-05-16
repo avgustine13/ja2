@@ -209,6 +209,24 @@ Representative directory:
 ## Progress Log
 
 - 2026-05-17:
+  - Established a checkpoint-worthy VS2022 runtime state after several bring-up iterations.
+  - Confirmed the best known state to freeze is:
+    - `Standard Gaming Platform/video.c`: explicit `RGB565` pixel format for windowed system-memory backbuffer/framebuffer/mouse surfaces
+    - `ja2/Build/Intro.c`: missing `INTERFACE\\SirtechSplash.sti` is logged and skipped instead of asserting
+  - Deliberately did **not** freeze later rendering experiments involving:
+    - windowed present-path rewrites
+    - primary-surface clipper changes
+    - extra `rcWindow` bookkeeping changes
+    - `DeleteVideoObjectFromIndex()` guard changes
+  - Reason for freezing here:
+    - this was the last state reported by the user as functionally acceptable
+    - the game could start and reach the laptop flow, even though cropping/lag/artifact issues were still present
+    - subsequent experiments regressed behavior and should not be treated as the baseline
+  - Agreed workflow going forward:
+    - commit this state first
+    - do future rendering experiments in isolated commits so they can be reverted cleanly
+
+- 2026-05-17:
   - Investigated a VS2022 runtime issue where `ja2.exe` started under the debugger but showed no visible graphics and stopped logging after `Initializing Video Manager`.
   - Confirmed the process was getting through early SGP startup and stalling in or around `InitializeVideoManager`.
   - Hardened `Standard Gaming Platform/video.c` for modern debugger launches:

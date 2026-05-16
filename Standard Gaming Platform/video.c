@@ -202,6 +202,30 @@ void AddRegionEx(INT32 iLeft, INT32 iTop, INT32 iRight, INT32 iBottom, UINT32 ui
 void SnapshotSmall( void );
 void VideoMovieCapture( BOOLEAN fEnable );
 void RefreshMovieCache( );
+static void SetupRGB565SystemSurfaceDesc(DDSURFACEDESC *pSurfaceDescription, UINT32 uiWidth, UINT32 uiHeight, UINT32 uiCaps);
+
+
+static void SetupRGB565SystemSurfaceDesc(DDSURFACEDESC *pSurfaceDescription, UINT32 uiWidth, UINT32 uiHeight, UINT32 uiCaps)
+{
+	DDPIXELFORMAT PixelFormat;
+
+	ZEROMEM(*pSurfaceDescription);
+	memset(&PixelFormat, 0, sizeof(PixelFormat));
+
+	PixelFormat.dwSize = sizeof(DDPIXELFORMAT);
+	PixelFormat.dwFlags = DDPF_RGB;
+	PixelFormat.dwRGBBitCount = 16;
+	PixelFormat.dwRBitMask = 0xF800;
+	PixelFormat.dwGBitMask = 0x07E0;
+	PixelFormat.dwBBitMask = 0x001F;
+
+	pSurfaceDescription->dwSize = sizeof(DDSURFACEDESC);
+	pSurfaceDescription->dwFlags = DDSD_CAPS | DDSD_WIDTH | DDSD_HEIGHT | DDSD_PIXELFORMAT;
+	pSurfaceDescription->ddsCaps.dwCaps = uiCaps;
+	pSurfaceDescription->dwWidth = uiWidth;
+	pSurfaceDescription->dwHeight = uiHeight;
+	pSurfaceDescription->ddpfPixelFormat = PixelFormat;
+}
 
 
 
@@ -406,14 +430,9 @@ BOOLEAN InitializeVideoManager(HINSTANCE hInstance, UINT16 usCommandShow, void *
     return FALSE;
   }
 
-	// Backbuffer
+  // Backbuffer
   FastDebugMsg("InitializeVideoManager: creating windowed backbuffer");
-  ZEROMEM(SurfaceDescription);
-  SurfaceDescription.dwSize         = sizeof(DDSURFACEDESC);
-  SurfaceDescription.dwFlags        = DDSD_CAPS | DDSD_WIDTH | DDSD_HEIGHT;
-  SurfaceDescription.ddsCaps.dwCaps = DDSCAPS_OFFSCREENPLAIN | DDSCAPS_SYSTEMMEMORY;
-  SurfaceDescription.dwWidth        = SCREEN_WIDTH;
-  SurfaceDescription.dwHeight       = SCREEN_HEIGHT;
+  SetupRGB565SystemSurfaceDesc(&SurfaceDescription, SCREEN_WIDTH, SCREEN_HEIGHT, DDSCAPS_OFFSCREENPLAIN | DDSCAPS_SYSTEMMEMORY);
   ReturnCode = IDirectDraw2_CreateSurface ( gpDirectDrawObject, &SurfaceDescription, &_gpBackBuffer, NULL );
   if (ReturnCode != DD_OK)
   { 
@@ -467,12 +486,7 @@ BOOLEAN InitializeVideoManager(HINSTANCE hInstance, UINT16 usCommandShow, void *
   //
 
   FastDebugMsg("InitializeVideoManager: creating frame buffer");
-  ZEROMEM(SurfaceDescription);
-  SurfaceDescription.dwSize         = sizeof(DDSURFACEDESC);
-  SurfaceDescription.dwFlags        = DDSD_CAPS | DDSD_WIDTH | DDSD_HEIGHT;
-  SurfaceDescription.ddsCaps.dwCaps = DDSCAPS_OFFSCREENPLAIN | DDSCAPS_SYSTEMMEMORY;
-  SurfaceDescription.dwWidth        = SCREEN_WIDTH;
-  SurfaceDescription.dwHeight       = SCREEN_HEIGHT;
+  SetupRGB565SystemSurfaceDesc(&SurfaceDescription, SCREEN_WIDTH, SCREEN_HEIGHT, DDSCAPS_OFFSCREENPLAIN | DDSCAPS_SYSTEMMEMORY);
   ReturnCode = IDirectDraw2_CreateSurface ( gpDirectDrawObject, &SurfaceDescription, &_gpFrameBuffer, NULL );
   if (ReturnCode != DD_OK)
   { 
@@ -508,13 +522,7 @@ BOOLEAN InitializeVideoManager(HINSTANCE hInstance, UINT16 usCommandShow, void *
   //
 
   FastDebugMsg("InitializeVideoManager: creating mouse cursor surface");
-  ZEROMEM(SurfaceDescription);
-  SurfaceDescription.dwSize         = sizeof(DDSURFACEDESC);
-  SurfaceDescription.dwFlags        = DDSD_CAPS | DDSD_WIDTH | DDSD_HEIGHT;
- // SurfaceDescription.ddsCaps.dwCaps = DDSCAPS_OFFSCREENPLAIN;
-  SurfaceDescription.ddsCaps.dwCaps = DDSCAPS_OFFSCREENPLAIN | DDSCAPS_SYSTEMMEMORY;
-  SurfaceDescription.dwWidth        = MAX_CURSOR_WIDTH;
-  SurfaceDescription.dwHeight       = MAX_CURSOR_HEIGHT;
+  SetupRGB565SystemSurfaceDesc(&SurfaceDescription, MAX_CURSOR_WIDTH, MAX_CURSOR_HEIGHT, DDSCAPS_OFFSCREENPLAIN | DDSCAPS_SYSTEMMEMORY);
   ReturnCode = IDirectDraw2_CreateSurface ( gpDirectDrawObject, &SurfaceDescription, &_gpMouseCursor, NULL );
   if (ReturnCode != DD_OK)
   { 
@@ -546,12 +554,7 @@ BOOLEAN InitializeVideoManager(HINSTANCE hInstance, UINT16 usCommandShow, void *
   //
 
   FastDebugMsg("InitializeVideoManager: creating mouse original surface");
-  ZEROMEM(SurfaceDescription);
-  SurfaceDescription.dwSize         = sizeof(DDSURFACEDESC);
-  SurfaceDescription.dwFlags        = DDSD_CAPS | DDSD_WIDTH | DDSD_HEIGHT;
-  SurfaceDescription.ddsCaps.dwCaps = DDSCAPS_OFFSCREENPLAIN | DDSCAPS_SYSTEMMEMORY;
-  SurfaceDescription.dwWidth        = MAX_CURSOR_WIDTH;
-  SurfaceDescription.dwHeight       = MAX_CURSOR_HEIGHT;
+  SetupRGB565SystemSurfaceDesc(&SurfaceDescription, MAX_CURSOR_WIDTH, MAX_CURSOR_HEIGHT, DDSCAPS_OFFSCREENPLAIN | DDSCAPS_SYSTEMMEMORY);
   ReturnCode = IDirectDraw2_CreateSurface ( gpDirectDrawObject, &SurfaceDescription, &_gpMouseCursorOriginal, NULL );
   if (ReturnCode != DD_OK)
   { 
@@ -586,13 +589,7 @@ BOOLEAN InitializeVideoManager(HINSTANCE hInstance, UINT16 usCommandShow, void *
     //
 
     FastDebugMsg(String("InitializeVideoManager: creating mouse background surface %ld", uiIndex));
-    ZEROMEM(SurfaceDescription);
-    SurfaceDescription.dwSize         = sizeof(DDSURFACEDESC);
-    SurfaceDescription.dwFlags        = DDSD_CAPS | DDSD_WIDTH | DDSD_HEIGHT;
-    //SurfaceDescription.ddsCaps.dwCaps = DDSCAPS_OFFSCREENPLAIN;
-		SurfaceDescription.ddsCaps.dwCaps = DDSCAPS_OFFSCREENPLAIN | DDSCAPS_SYSTEMMEMORY;
-    SurfaceDescription.dwWidth        = MAX_CURSOR_WIDTH;
-    SurfaceDescription.dwHeight       = MAX_CURSOR_HEIGHT;
+    SetupRGB565SystemSurfaceDesc(&SurfaceDescription, MAX_CURSOR_WIDTH, MAX_CURSOR_HEIGHT, DDSCAPS_OFFSCREENPLAIN | DDSCAPS_SYSTEMMEMORY);
     ReturnCode = IDirectDraw2_CreateSurface ( gpDirectDrawObject, &SurfaceDescription, &(gMouseCursorBackground[uiIndex]._pSurface), NULL );
     if (ReturnCode != DD_OK)
     { 
@@ -2190,7 +2187,6 @@ void RefreshScreen(void *DummyVariable)
     }
 
   } while (ReturnCode != DD_OK);
-
 
 #else
 
