@@ -28,7 +28,7 @@
 		#include "video.h"
 		#include "Button Sound Control.h"
 		#ifdef _JA2_RENDER_DIRTY
-			#include "\JA2\Build\utils\Font Control.h"
+			#include "Font Control.h"
 			#include "Render Dirty.h"
 			#include "utilities.h"
 		#endif

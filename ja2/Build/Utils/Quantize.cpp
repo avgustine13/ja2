@@ -126,10 +126,13 @@ NODE* CQuantizer::CreateNode (UINT nLevel, UINT nColorBits, UINT* pLeafCount,
 void CQuantizer::ReduceTree (UINT nColorBits, UINT* pLeafCount,
     NODE** pReducibleNodes)
 {
+    int i;
+
     //
     // Find the deepest level containing at least one reducible node.
     //
-    for (int i=nColorBits - 1; (i>0) && (pReducibleNodes[i] == NULL); i--);
+    for (i = nColorBits - 1; (i > 0) && (pReducibleNodes[i] == NULL); i--) {
+    }
 
     //
     // Reduce the node most recently added to the list at level i.
@@ -142,7 +145,7 @@ void CQuantizer::ReduceTree (UINT nColorBits, UINT* pLeafCount,
     UINT nBlueSum = 0;
     UINT nChildren = 0;
 
-    for (i=0; i<8; i++) {
+    for (i = 0; i < 8; i++) {
         if (pNode->pChild[i] != NULL) {
             nRedSum += pNode->pChild[i]->nRedSum;
             nGreenSum += pNode->pChild[i]->nGreenSum;

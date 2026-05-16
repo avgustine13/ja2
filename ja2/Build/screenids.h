@@ -38,6 +38,6 @@ typedef enum ScreenTypes
 //#endif
 
 	MAX_SCREENS
-};
+} ScreenTypes;
 
 #endif

@@ -347,6 +347,7 @@ INT32 FAR PASCAL WindowProcedure(HWND hWindow, UINT16 Message, WPARAM wParam, LP
 			break;
 
     case WM_DESTROY: 
+			FastDebugMsg("WindowProcedure: WM_DESTROY received");
 			ShutdownStandardGamingPlatform();
       ShowCursor(TRUE);
       PostQuitMessage(0);
@@ -553,6 +554,7 @@ BOOLEAN InitializeStandardGamingPlatform(HINSTANCE hInstance, int sCommandShow)
 
 void ShutdownStandardGamingPlatform(void)
 {
+	FastDebugMsg("ShutdownStandardGamingPlatform: begin");
 #ifndef JA2
 	static BOOLEAN Reenter = FALSE;
 
@@ -769,6 +771,8 @@ void SGPExit(void)
 {
 	static BOOLEAN fAlreadyExiting = FALSE;
 	BOOLEAN fUnloadScreens = TRUE;
+
+	FastDebugMsg("SGPExit: begin");
 
 
 	// helps prevent heap crashes when multiple assertions occur and call us

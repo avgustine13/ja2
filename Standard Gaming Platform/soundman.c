@@ -209,8 +209,27 @@ UINT32 uiCount;
 		memset(&pSoundList[uiCount], 0, sizeof(SOUNDTAG));
   
 #ifndef SOUND_DISABLE
-	if(gfEnableStartup && SoundInitHardware())
-		fSoundSystemInit=TRUE;
+	if(gfEnableStartup)
+	{
+		__try
+		{
+			if(SoundInitHardware())
+			{
+				fSoundSystemInit=TRUE;
+			}
+			else
+			{
+				FastDebugMsg("InitializeSoundManager: SoundInitHardware failed, continuing with sound disabled");
+			}
+		}
+		__except(EXCEPTION_EXECUTE_HANDLER)
+		{
+			FastDebugMsg("InitializeSoundManager: Miles startup raised an exception, continuing with sound disabled");
+			gfEnableStartup = FALSE;
+			fSoundSystemInit = FALSE;
+			hSoundDriver = NULL;
+		}
+	}
 #endif
 
 	SoundInitCache();
@@ -219,8 +238,18 @@ UINT32 uiCount;
 	guiSoundMemoryUsed=0;
 	guiSoundCacheThreshold=SOUND_DEFAULT_THRESH;
 
-	if(gpProviderName && !gh3DProvider)
-		Sound3DInitProvider(gpProviderName);
+	if(gpProviderName && !gh3DProvider && fSoundSystemInit)
+	{
+		__try
+		{
+			Sound3DInitProvider(gpProviderName);
+		}
+		__except(EXCEPTION_EXECUTE_HANDLER)
+		{
+			FastDebugMsg("InitializeSoundManager: 3D sound provider init raised an exception, continuing without 3D sound");
+			gh3DProvider = NULL;
+		}
+	}
 
 	return(TRUE);
 }

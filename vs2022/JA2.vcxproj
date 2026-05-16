@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>17.0</VCProjectVersion>
+    <Keyword>Win32Proj</Keyword>
+    <ProjectGuid>{D8AF1F2B-5D16-4AA9-90D8-BCB0FBC9D42A}</ProjectGuid>
+    <RootNamespace>JA2</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <ProjectName>JA2</ProjectName>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+    <LocalDebuggerWorkingDirectory>$(ProjectDir)..\</LocalDebuggerWorkingDirectory>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>false</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+    <LocalDebuggerWorkingDirectory>$(ProjectDir)..\</LocalDebuggerWorkingDirectory>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings" />
+  <ImportGroup Label="Shared" />
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <OutDir>$(ProjectDir)bin\$(Configuration)\</OutDir>
+    <IntDir>$(ProjectDir)obj\$(Configuration)\</IntDir>
+    <TargetName>ja2</TargetName>
+    <IgnoreImportLibrary>true</IgnoreImportLibrary>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <SDLCheck>false</SDLCheck>
+      <ConformanceMode>false</ConformanceMode>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;JA2;CALLBACKTIMER;PRECOMPILEDHEADERS;JA2_PRECOMPILED_HEADERS;NO_ZLIB;NO_ZLIB_COMPRESSION;WINDOWS_IGNORE_PACKING_MISMATCH;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_WARNINGS;_CRT_NON_CONFORMING_SWPRINTFS;_CRT_NON_CONFORMING_WCSTOK;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\Standard Gaming Platform;..\ja2\Build;..\ja2\Build\TileEngine;..\ja2\Build\Tactical;..\ja2\Build\Utils;..\ja2\Build\TacticalAI;..\ja2\Build\Editor;..\ja2\Build\Strategic;..\ja2\Build\Laptop;..\ja2\Build\Res;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <CompileAsWinRT>false</CompileAsWinRT>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <SupportJustMyCode>false</SupportJustMyCode>
+      <AdditionalOptions>/Zc:preprocessor- %(AdditionalOptions)</AdditionalOptions>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\ja2\Build\Res;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <TargetMachine>MachineX86</TargetMachine>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>winmm.lib;smackw32.lib;mss32.lib;ddraw.lib;delayimp.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\Standard Gaming Platform;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <DelayLoadDLLs>mss32.dll;smackw32.dll</DelayLoadDLLs>
+    </Link>
+    <PostBuildEvent>
+      <Command>if exist "C:\Program Files (x86)\Steam\bin\mss32.dll" copy /Y "C:\Program Files (x86)\Steam\bin\mss32.dll" "$(OutDir)mss32.dll"
+if not exist "$(ProjectDir)bin\NoIntro.txt" echo. &gt; "$(ProjectDir)bin\NoIntro.txt"
+if not exist "$(OutDir)..\NoIntro.txt" copy /Y "$(ProjectDir)bin\NoIntro.txt" "$(OutDir)..\NoIntro.txt"</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>false</SDLCheck>
+      <ConformanceMode>false</ConformanceMode>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;JA2;CALLBACKTIMER;PRECOMPILEDHEADERS;JA2_PRECOMPILED_HEADERS;NO_ZLIB;NO_ZLIB_COMPRESSION;WINDOWS_IGNORE_PACKING_MISMATCH;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_WARNINGS;_CRT_NON_CONFORMING_SWPRINTFS;_CRT_NON_CONFORMING_WCSTOK;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\Standard Gaming Platform;..\ja2\Build;..\ja2\Build\TileEngine;..\ja2\Build\Tactical;..\ja2\Build\Utils;..\ja2\Build\TacticalAI;..\ja2\Build\Editor;..\ja2\Build\Strategic;..\ja2\Build\Laptop;..\ja2\Build\Res;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <CompileAsWinRT>false</CompileAsWinRT>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <AdditionalOptions>/Zc:preprocessor- %(AdditionalOptions)</AdditionalOptions>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\ja2\Build\Res;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <TargetMachine>MachineX86</TargetMachine>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalDependencies>winmm.lib;smackw32.lib;mss32.lib;ddraw.lib;delayimp.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\Standard Gaming Platform;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <DelayLoadDLLs>mss32.dll;smackw32.dll</DelayLoadDLLs>
+    </Link>
+    <PostBuildEvent>
+      <Command>if exist "C:\Program Files (x86)\Steam\bin\mss32.dll" copy /Y "C:\Program Files (x86)\Steam\bin\mss32.dll" "$(OutDir)mss32.dll"</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="..\Standard Gaming Platform\*.c" />
+    <ClCompile Include="..\Standard Gaming Platform\*.cpp" />
+    <ClCompile Include="..\ja2\Build\*.c" />
+    <ClCompile Include="..\ja2\Build\*.cpp" />
+    <ClCompile Include="..\ja2\Build\Editor\*.c" />
+    <ClCompile Include="..\ja2\Build\Laptop\*.c" />
+    <ClCompile Include="..\ja2\Build\Strategic\*.c" />
+    <ClCompile Include="..\ja2\Build\Tactical\*.c" />
+    <ClCompile Include="..\ja2\Build\TacticalAI\*.c" />
+    <ClCompile Include="..\ja2\Build\TileEngine\*.c" />
+    <ClCompile Include="..\ja2\Build\Utils\*.c" />
+    <ClCompile Include="..\ja2\Build\Utils\*.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Update="..\Standard Gaming Platform\Compression.c">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Update="..\Standard Gaming Platform\Ja2 Libs.c">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Update="..\ja2\Build\Utils\Win Util.c">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\Standard Gaming Platform\*.h" />
+    <ClInclude Include="..\ja2\Build\*.h" />
+    <ClInclude Include="..\ja2\Build\Editor\*.h" />
+    <ClInclude Include="..\ja2\Build\Laptop\*.h" />
+    <ClInclude Include="..\ja2\Build\Strategic\*.h" />
+    <ClInclude Include="..\ja2\Build\Tactical\*.h" />
+    <ClInclude Include="..\ja2\Build\TacticalAI\*.h" />
+    <ClInclude Include="..\ja2\Build\TileEngine\*.h" />
+    <ClInclude Include="..\ja2\Build\Utils\*.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="..\ja2\Build\Res\ja2.rc" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets" />
+</Project>

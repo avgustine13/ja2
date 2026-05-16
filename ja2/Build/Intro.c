@@ -167,6 +167,7 @@ UINT32	IntroScreenHandle( void )
 BOOLEAN EnterIntroScreen()
 {
 	INT32 iFirstVideoID = -1;
+	HMODULE hSmacker;
 
 	ClearMainMenu();
 
@@ -177,12 +178,20 @@ BOOLEAN EnterIntroScreen()
 	SetMusicMode( MUSIC_NONE );
 
 #ifdef JA2BETAVERSION
-	if( FileExists( "..\\NoIntro.txt" ) )
+	if( FileExists( "NoIntro.txt" ) || FileExists( "..\\NoIntro.txt" ) )
 	{
 		PrepareToExitIntroScreen();
 		return( TRUE );
 	}
 #endif
+
+	hSmacker = LoadLibraryA( "smackw32.dll" );
+	if( hSmacker == NULL )
+	{
+		PrepareToExitIntroScreen();
+		return( TRUE );
+	}
+	FreeLibrary( hSmacker );
 
 	//if the library doesnt exist, exit
 	if( !IsLibraryOpened( LIBRARY_INTRO ) )

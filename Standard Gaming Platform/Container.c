@@ -32,7 +32,6 @@
 	#include "MemMan.h"
 	#include "Debug.h"
 	#include "Container.h"
-	#include <iostream.h>
 #endif
 
 

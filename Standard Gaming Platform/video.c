@@ -217,6 +217,9 @@ BOOLEAN InitializeVideoManager(HINSTANCE hInstance, UINT16 usCommandShow, void *
   DDSURFACEDESC SurfaceDescription;
   DDCOLORKEY    ColorKey;
   PTR           pTmpPointer;
+#ifdef WINDOWED_MODE
+  RECT          WindowRect;
+#endif
 
 #ifndef WINDOWED_MODE
   DDSCAPS       SurfaceCaps;
@@ -249,6 +252,7 @@ BOOLEAN InitializeVideoManager(HINSTANCE hInstance, UINT16 usCommandShow, void *
   WindowClass.hbrBackground = NULL;
   WindowClass.lpszMenuName = NULL;
   WindowClass.lpszClassName = ClassName;
+  FastDebugMsg("InitializeVideoManager: registering window class");
   RegisterClass(&WindowClass);
 
   //
@@ -256,8 +260,27 @@ BOOLEAN InitializeVideoManager(HINSTANCE hInstance, UINT16 usCommandShow, void *
   // Don't change this
   //
 #ifdef WINDOWED_MODE
-  hWindow = CreateWindowEx(0, ClassName, "Windowed JA2 !!", WS_POPUP, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, NULL, NULL, hInstance, NULL);
+  WindowRect.left = 0;
+  WindowRect.top = 0;
+  WindowRect.right = SCREEN_WIDTH;
+  WindowRect.bottom = SCREEN_HEIGHT;
+  AdjustWindowRect(&WindowRect, WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX, FALSE);
+  FastDebugMsg("InitializeVideoManager: creating windowed startup window");
+  hWindow = CreateWindowEx(
+    0,
+    ClassName,
+    APPLICATION_NAME,
+    WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX | WS_VISIBLE,
+    CW_USEDEFAULT,
+    CW_USEDEFAULT,
+    WindowRect.right - WindowRect.left,
+    WindowRect.bottom - WindowRect.top,
+    NULL,
+    NULL,
+    hInstance,
+    NULL);
 #else
+  FastDebugMsg("InitializeVideoManager: creating fullscreen startup window");
   hWindow = CreateWindowEx(WS_EX_TOPMOST, ClassName, ClassName, WS_POPUP | WS_VISIBLE, 0, 0, GetSystemMetrics(SM_CXSCREEN), GetSystemMetrics(SM_CYSCREEN), NULL, NULL, hInstance, NULL);
 #endif
   if (hWindow == NULL)
@@ -279,7 +302,13 @@ BOOLEAN InitializeVideoManager(HINSTANCE hInstance, UINT16 usCommandShow, void *
   // Display our full screen window
   //
 
+  if (usCommandShow == 0)
+  {
+    usCommandShow = SW_SHOWNORMAL;
+  }
+
   ShowCursor(FALSE);
+  FastDebugMsg("InitializeVideoManager: showing startup window");
   ShowWindow(hWindow, usCommandShow);
   UpdateWindow(hWindow);
   SetFocus(hWindow);
@@ -294,6 +323,7 @@ BOOLEAN InitializeVideoManager(HINSTANCE hInstance, UINT16 usCommandShow, void *
   // Create the Direct Draw Object
   //
 
+  FastDebugMsg("InitializeVideoManager: calling DirectDrawCreate");
   ReturnCode = DirectDrawCreate(NULL, &_gpDirectDrawObject, NULL);
   if (ReturnCode != DD_OK)
   { 
@@ -301,6 +331,7 @@ BOOLEAN InitializeVideoManager(HINSTANCE hInstance, UINT16 usCommandShow, void *
     return FALSE;
   }
     
+	FastDebugMsg("InitializeVideoManager: querying IDirectDraw2");
 	ReturnCode = IDirectDraw_QueryInterface( _gpDirectDrawObject, &IID_IDirectDraw2, (LPVOID *) &gpDirectDrawObject );
   if (ReturnCode != DD_OK)
   { 
@@ -312,8 +343,10 @@ BOOLEAN InitializeVideoManager(HINSTANCE hInstance, UINT16 usCommandShow, void *
   // Set the exclusive mode
   //
 #ifdef WINDOWED_MODE
+	FastDebugMsg("InitializeVideoManager: setting cooperative level DDSCL_NORMAL");
 	ReturnCode = IDirectDraw2_SetCooperativeLevel(gpDirectDrawObject, ghWindow, DDSCL_NORMAL );
 #else
+	FastDebugMsg("InitializeVideoManager: setting cooperative level fullscreen exclusive");
 	ReturnCode = IDirectDraw2_SetCooperativeLevel(gpDirectDrawObject, ghWindow, DDSCL_EXCLUSIVE | DDSCL_FULLSCREEN );
 #endif
   if (ReturnCode != DD_OK)
@@ -326,6 +359,7 @@ BOOLEAN InitializeVideoManager(HINSTANCE hInstance, UINT16 usCommandShow, void *
   // Set the display mode
   //
 #ifndef WINDOWED_MODE
+  FastDebugMsg("InitializeVideoManager: setting display mode");
   ReturnCode = IDirectDraw2_SetDisplayMode( gpDirectDrawObject, SCREEN_WIDTH, SCREEN_HEIGHT, gbPixelDepth, 0, 0 );
   if (ReturnCode != DD_OK)
   { 
@@ -352,6 +386,7 @@ BOOLEAN InitializeVideoManager(HINSTANCE hInstance, UINT16 usCommandShow, void *
 #ifdef WINDOWED_MODE
 
 	// Create a primary surface and a backbuffer in system memory
+  FastDebugMsg("InitializeVideoManager: creating primary surface");
   SurfaceDescription.dwSize = sizeof(DDSURFACEDESC);
   SurfaceDescription.dwFlags = DDSD_CAPS;
   SurfaceDescription.ddsCaps.dwCaps = DDSCAPS_PRIMARYSURFACE;
@@ -372,6 +407,7 @@ BOOLEAN InitializeVideoManager(HINSTANCE hInstance, UINT16 usCommandShow, void *
   }
 
 	// Backbuffer
+  FastDebugMsg("InitializeVideoManager: creating windowed backbuffer");
   ZEROMEM(SurfaceDescription);
   SurfaceDescription.dwSize         = sizeof(DDSURFACEDESC);
   SurfaceDescription.dwFlags        = DDSD_CAPS | DDSD_WIDTH | DDSD_HEIGHT;
@@ -395,6 +431,7 @@ BOOLEAN InitializeVideoManager(HINSTANCE hInstance, UINT16 usCommandShow, void *
 
 
 #else
+  FastDebugMsg("InitializeVideoManager: creating fullscreen primary surface");
   SurfaceDescription.dwSize = sizeof(DDSURFACEDESC);
   SurfaceDescription.dwFlags = DDSD_CAPS | DDSD_BACKBUFFERCOUNT;
   SurfaceDescription.ddsCaps.dwCaps = DDSCAPS_PRIMARYSURFACE | DDSCAPS_FLIP | DDSCAPS_COMPLEX;
@@ -429,6 +466,7 @@ BOOLEAN InitializeVideoManager(HINSTANCE hInstance, UINT16 usCommandShow, void *
   // Initialize the frame buffer
   //
 
+  FastDebugMsg("InitializeVideoManager: creating frame buffer");
   ZEROMEM(SurfaceDescription);
   SurfaceDescription.dwSize         = sizeof(DDSURFACEDESC);
   SurfaceDescription.dwFlags        = DDSD_CAPS | DDSD_WIDTH | DDSD_HEIGHT;
@@ -442,6 +480,7 @@ BOOLEAN InitializeVideoManager(HINSTANCE hInstance, UINT16 usCommandShow, void *
     return FALSE;
   }
 
+  FastDebugMsg("InitializeVideoManager: querying frame buffer surface2");
   ReturnCode = IDirectDrawSurface_QueryInterface(_gpFrameBuffer, &IID_IDirectDrawSurface2, &gpFrameBuffer);
   if (ReturnCode != DD_OK)
   { 
@@ -453,14 +492,22 @@ BOOLEAN InitializeVideoManager(HINSTANCE hInstance, UINT16 usCommandShow, void *
   // Blank out the frame buffer
   //
 
+  FastDebugMsg("InitializeVideoManager: locking frame buffer for clear");
   pTmpPointer = LockFrameBuffer(&uiPitch);
+  if (pTmpPointer == NULL)
+  {
+    FastDebugMsg("InitializeVideoManager: LockFrameBuffer returned NULL");
+    return FALSE;
+  }
   memset(pTmpPointer, 0, 480 * uiPitch);
+  FastDebugMsg("InitializeVideoManager: unlocking frame buffer after clear");
   UnlockFrameBuffer();
 
   //
   // Initialize the main mouse surfaces
   //
 
+  FastDebugMsg("InitializeVideoManager: creating mouse cursor surface");
   ZEROMEM(SurfaceDescription);
   SurfaceDescription.dwSize         = sizeof(DDSURFACEDESC);
   SurfaceDescription.dwFlags        = DDSD_CAPS | DDSD_WIDTH | DDSD_HEIGHT;
@@ -476,6 +523,7 @@ BOOLEAN InitializeVideoManager(HINSTANCE hInstance, UINT16 usCommandShow, void *
     return FALSE;
   }  
 
+  FastDebugMsg("InitializeVideoManager: querying mouse cursor surface2");
   ReturnCode = IDirectDrawSurface_QueryInterface(_gpMouseCursor, &IID_IDirectDrawSurface2, &gpMouseCursor);
   if (ReturnCode != DD_OK)
   { 
@@ -485,6 +533,7 @@ BOOLEAN InitializeVideoManager(HINSTANCE hInstance, UINT16 usCommandShow, void *
 
   ColorKey.dwColorSpaceLowValue = 0;
   ColorKey.dwColorSpaceHighValue = 0;
+  FastDebugMsg("InitializeVideoManager: setting mouse cursor color key");
   ReturnCode = IDirectDrawSurface2_SetColorKey(gpMouseCursor, DDCKEY_SRCBLT, &ColorKey);
   if (ReturnCode != DD_OK)
   { 
@@ -496,6 +545,7 @@ BOOLEAN InitializeVideoManager(HINSTANCE hInstance, UINT16 usCommandShow, void *
   // Initialize the main mouse original surface
   //
 
+  FastDebugMsg("InitializeVideoManager: creating mouse original surface");
   ZEROMEM(SurfaceDescription);
   SurfaceDescription.dwSize         = sizeof(DDSURFACEDESC);
   SurfaceDescription.dwFlags        = DDSD_CAPS | DDSD_WIDTH | DDSD_HEIGHT;
@@ -510,6 +560,7 @@ BOOLEAN InitializeVideoManager(HINSTANCE hInstance, UINT16 usCommandShow, void *
     return FALSE;
   }
   
+  FastDebugMsg("InitializeVideoManager: querying mouse original surface2");
   ReturnCode = IDirectDrawSurface_QueryInterface(_gpMouseCursorOriginal, &IID_IDirectDrawSurface2, &gpMouseCursorOriginal);
   if (ReturnCode != DD_OK)
   { 
@@ -534,6 +585,7 @@ BOOLEAN InitializeVideoManager(HINSTANCE hInstance, UINT16 usCommandShow, void *
     // Initialize the direct draw surfaces for the mouse background
     //
 
+    FastDebugMsg(String("InitializeVideoManager: creating mouse background surface %ld", uiIndex));
     ZEROMEM(SurfaceDescription);
     SurfaceDescription.dwSize         = sizeof(DDSURFACEDESC);
     SurfaceDescription.dwFlags        = DDSD_CAPS | DDSD_WIDTH | DDSD_HEIGHT;
@@ -549,6 +601,7 @@ BOOLEAN InitializeVideoManager(HINSTANCE hInstance, UINT16 usCommandShow, void *
       return FALSE;
     }
 
+    FastDebugMsg(String("InitializeVideoManager: querying mouse background surface2 %ld", uiIndex));
     ReturnCode = IDirectDrawSurface_QueryInterface(gMouseCursorBackground[uiIndex]._pSurface, &IID_IDirectDrawSurface2, &(gMouseCursorBackground[uiIndex].pSurface));
     if (ReturnCode != DD_OK)
     { 
@@ -562,14 +615,17 @@ BOOLEAN InitializeVideoManager(HINSTANCE hInstance, UINT16 usCommandShow, void *
   //
 
 	// ATE: Keep these mutexes for now!
+  FastDebugMsg("InitializeVideoManager: initializing refresh mutex");
   if (InitializeMutex(REFRESH_THREAD_MUTEX, "RefreshThreadMutex") == FALSE)
   {
     return FALSE;
   }
+  FastDebugMsg("InitializeVideoManager: initializing frame buffer mutex");
   if (InitializeMutex(FRAME_BUFFER_MUTEX, "FrameBufferMutex") == FALSE)
   {
     return FALSE;
   }
+  FastDebugMsg("InitializeVideoManager: initializing mouse buffer mutex");
   if (InitializeMutex(MOUSE_BUFFER_MUTEX, "MouseBufferMutex") == FALSE)
   {
     return FALSE;
@@ -594,8 +650,10 @@ BOOLEAN InitializeVideoManager(HINSTANCE hInstance, UINT16 usCommandShow, void *
   // This function must be called to setup RGB information
   //
 
+  FastDebugMsg("InitializeVideoManager: getting RGB distribution");
   GetRGBDistribution();
 
+  FastDebugMsg("InitializeVideoManager: completed successfully");
 
   return TRUE;
 }
@@ -2494,6 +2552,7 @@ PTR LockFrameBuffer(UINT32 *uiPitch)
 {
   HRESULT       ReturnCode;
   DDSURFACEDESC SurfaceDescription;
+  UINT32        uiAttempts = 0;
 
 
   ZEROMEM(SurfaceDescription);
@@ -2501,7 +2560,25 @@ PTR LockFrameBuffer(UINT32 *uiPitch)
 
   do
   {
-	  ReturnCode = IDirectDrawSurface2_Lock(gpFrameBuffer, NULL, &SurfaceDescription, 0, NULL);
+	  ReturnCode = IDirectDrawSurface2_Lock(gpFrameBuffer, NULL, &SurfaceDescription, DDLOCK_WAIT, NULL);
+    if (ReturnCode == DDERR_WASSTILLDRAWING)
+    {
+      uiAttempts++;
+      if (uiAttempts == 1)
+      {
+        FastDebugMsg("LockFrameBuffer: waiting for DirectDraw surface");
+      }
+
+      if (uiAttempts > 5000)
+      {
+        FastDebugMsg("LockFrameBuffer: timed out waiting for DirectDraw surface");
+        DirectXAttempt ( ReturnCode, __LINE__, __FILE__ );
+        return NULL;
+      }
+      Sleep(1);
+      continue;
+    }
+
     if ((ReturnCode != DD_OK)&&(ReturnCode != DDERR_WASSTILLDRAWING))
     {
       DebugMsg(TOPIC_VIDEO, DBG_LEVEL_0, "Failed to lock backbuffer");
@@ -2511,6 +2588,11 @@ PTR LockFrameBuffer(UINT32 *uiPitch)
 
 
   } while (ReturnCode != DD_OK);
+
+  if (uiAttempts > 0)
+  {
+    FastDebugMsg(String("LockFrameBuffer: surface lock succeeded after %ld retries", uiAttempts));
+  }
 
   *uiPitch = SurfaceDescription.lPitch;
 
@@ -2583,6 +2665,9 @@ BOOLEAN GetRGBDistribution(void)
 DDSURFACEDESC SurfaceDescription;
 UINT16        usBit;
 HRESULT       ReturnCode;
+UINT32        uiRedMask;
+UINT32        uiGreenMask;
+UINT32        uiBlueMask;
 
   Assert ( gpPrimarySurface != NULL );
 
@@ -2595,7 +2680,7 @@ HRESULT       ReturnCode;
   ZEROMEM(SurfaceDescription);
   SurfaceDescription.dwSize = sizeof (DDSURFACEDESC);
   SurfaceDescription.dwFlags = DDSD_PIXELFORMAT;
-  ReturnCode = IDirectDrawSurface2_GetSurfaceDesc ( gpPrimarySurface, &SurfaceDescription );
+  ReturnCode = IDirectDrawSurface2_GetSurfaceDesc ( gpFrameBuffer, &SurfaceDescription );
   if (ReturnCode != DD_OK)
   {
     DirectXAttempt ( ReturnCode, __LINE__, __FILE__ );
@@ -2606,9 +2691,38 @@ HRESULT       ReturnCode;
   // Ok we now have the surface description, we now can get the information that we need
   //
 
-	gusRedMask   = (UINT16) SurfaceDescription.ddpfPixelFormat.dwRBitMask;
-	gusGreenMask = (UINT16) SurfaceDescription.ddpfPixelFormat.dwGBitMask;
-	gusBlueMask  = (UINT16) SurfaceDescription.ddpfPixelFormat.dwBBitMask;
+	uiRedMask   = SurfaceDescription.ddpfPixelFormat.dwRBitMask;
+	uiGreenMask = SurfaceDescription.ddpfPixelFormat.dwGBitMask;
+	uiBlueMask  = SurfaceDescription.ddpfPixelFormat.dwBBitMask;
+
+	FastDebugMsg(String("GetRGBDistribution: bitcount=%ld R=%08lx G=%08lx B=%08lx",
+		SurfaceDescription.ddpfPixelFormat.dwRGBBitCount,
+		uiRedMask,
+		uiGreenMask,
+		uiBlueMask));
+
+	if ( SurfaceDescription.ddpfPixelFormat.dwRGBBitCount != 16 ||
+		  ( uiRedMask & 0xffff0000 ) != 0 ||
+		  ( uiGreenMask & 0xffff0000 ) != 0 ||
+		  ( uiBlueMask & 0xffff0000 ) != 0 ||
+		  uiRedMask == 0 ||
+		  uiGreenMask == 0 ||
+		  uiBlueMask == 0 )
+	{
+		FastDebugMsg("GetRGBDistribution: unsupported/non-16-bit mask layout, forcing RGB 565 defaults");
+		gusRedMask = 0xF800;
+		gusGreenMask = 0x07E0;
+		gusBlueMask = 0x001F;
+		guiTranslucentMask = 0x7BEF;
+		gusRedShift = 3;
+		gusGreenShift = 2;
+		gusBlueShift = 3;
+		return TRUE;
+	}
+
+	gusRedMask   = (UINT16) uiRedMask;
+	gusGreenMask = (UINT16) uiGreenMask;
+	gusBlueMask  = (UINT16) uiBlueMask;
 
 
 	// RGB 5,5,5
@@ -2642,6 +2756,8 @@ HRESULT       ReturnCode;
 		usBit >>= 1;
 		gusBlueShift--;
 	}
+
+	FastDebugMsg(String("GetRGBDistribution: shifts R=%d G=%d B=%d", gusRedShift, gusGreenShift, gusBlueShift));
 
   return TRUE;
 }

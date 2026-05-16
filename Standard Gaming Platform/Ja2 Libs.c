@@ -1,3 +1,5 @@
+#include "LibraryDataBase.h"
+#include "Ja2 Libs.h"
 
 LibraryInitHeader gGameLibaries[ ] = 
 { 

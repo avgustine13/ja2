@@ -33,7 +33,7 @@
 	#endif
 	#ifdef _JA2_RENDER_DIRTY
 		#include "render dirty.h"
-		#include "\JA2\Build\utils\Font Control.h"
+		#include "Font Control.h"
 	#endif
 	#include "english.h"
 	// Include mouse system defs and macros
