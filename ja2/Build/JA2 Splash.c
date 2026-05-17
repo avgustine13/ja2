@@ -40,7 +40,7 @@ void InitJA2SplashScreen()
 	sprintf( VSurfaceDesc.ImageFile, "LOADSCREENS\\Notification.sti" );
 	if( !AddVideoSurface( &VSurfaceDesc, &uiLogoID ) )
 	{	
-		AssertMsg( 0, String( "Failed to load %s", VSurfaceDesc.ImageFile ) );
+		DebugMsg( TOPIC_JA2, DBG_LEVEL_3, String( "InitJA2SplashScreen: missing optional splash asset %s", VSurfaceDesc.ImageFile ) );
 		return;
 	}
 	GetVideoSurface(&hVSurface, uiLogoID );
@@ -71,7 +71,7 @@ void InitJA2SplashScreen()
 			GetMLGFilename( VSurfaceDesc.ImageFile, MLG_SPLASH );
 			if( !AddVideoSurface( &VSurfaceDesc, &uiLogoID ) )
 			{	
-				AssertMsg( 0, String( "Failed to load %s", VSurfaceDesc.ImageFile ) );
+				DebugMsg( TOPIC_JA2, DBG_LEVEL_3, String( "InitJA2SplashScreen: missing optional splash asset %s", VSurfaceDesc.ImageFile ) );
 				return;
 			}
 

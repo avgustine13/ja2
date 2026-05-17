@@ -27,8 +27,9 @@
 extern UINT16 gsKeyTranslationTable[1024];
 
 extern BOOLEAN gfApplicationActive;
+extern HWND ghWindow;
 
-#ifndef JA2
+#if !defined(JA2) || !defined(WINDOWED_MODE)
 
 #undef GetCursorPos
 #define GetCursorPos SGPMouseGetPos
@@ -98,6 +99,82 @@ void    QueueEvent(UINT16 ubInputEvent, UINT32 usParam, UINT32 uiParam);
 void    RedirectToString(UINT16 uiInputCharacter);
 void		HandleSingleClicksAndButtonRepeats( void );
 void		AdjustMouseForWindowOrigin(void);
+static BOOLEAN ConvertMousePointToClient(POINT *pPoint);
+static void ApplyMouseClipRect(const RECT *pRect);
+
+static BOOLEAN ConvertMousePointToClient(POINT *pPoint)
+{
+#ifdef WINDOWED_MODE
+	if (ghWindow != NULL)
+	{
+		if (!ScreenToClient(ghWindow, pPoint))
+		{
+			return FALSE;
+		}
+
+		if (pPoint->x < 0 || pPoint->x >= SCREEN_WIDTH || pPoint->y < 0 || pPoint->y >= SCREEN_HEIGHT)
+		{
+			return FALSE;
+		}
+	}
+#endif
+
+	return TRUE;
+}
+
+static void ApplyMouseClipRect(const RECT *pRect)
+{
+#ifdef WINDOWED_MODE
+	RECT ScreenRect;
+	POINT TopLeft;
+	POINT BottomRight;
+
+	if (ghWindow != NULL)
+	{
+		ScreenRect = *pRect;
+		TopLeft.x = ScreenRect.left;
+		TopLeft.y = ScreenRect.top;
+		BottomRight.x = ScreenRect.right;
+		BottomRight.y = ScreenRect.bottom;
+
+		if (ClientToScreen(ghWindow, &TopLeft) && ClientToScreen(ghWindow, &BottomRight))
+		{
+			ScreenRect.left = TopLeft.x;
+			ScreenRect.top = TopLeft.y;
+			ScreenRect.right = BottomRight.x;
+			ScreenRect.bottom = BottomRight.y;
+			ClipCursor(&ScreenRect);
+			return;
+		}
+	}
+#endif
+
+	ClipCursor((RECT *)pRect);
+}
+
+#ifdef JA2
+#ifdef WINDOWED_MODE
+#undef GetCursorPos
+BOOL SGPMouseGetPos(LPPOINT pPoint)
+{
+	if (!GetCursorPos(pPoint))
+	{
+		return FALSE;
+	}
+
+	if (ghWindow != NULL)
+	{
+		if (!ScreenToClient(ghWindow, pPoint))
+		{
+			return FALSE;
+		}
+	}
+
+	return TRUE;
+}
+#define GetCursorPos SGPMouseGetPos
+#endif
+#endif
 
 // These are the hook functions for both keyboard and mouse
 
@@ -131,6 +208,7 @@ LRESULT CALLBACK KeyboardHandler(int Code, WPARAM wParam, LPARAM lParam)
 LRESULT CALLBACK MouseHandler(int Code, WPARAM wParam, LPARAM lParam)
 {
   UINT32 uiParam;
+  POINT MousePoint;
 
 #ifndef JA2
   if((Code < 0) || (!gfApplicationActive))
@@ -145,8 +223,13 @@ LRESULT CALLBACK MouseHandler(int Code, WPARAM wParam, LPARAM lParam)
   {
     case WM_LBUTTONDOWN
     : // Update the current mouse position
-      gusMouseXPos = (UINT16)(((MOUSEHOOKSTRUCT *)lParam)->pt).x;
-      gusMouseYPos = (UINT16)(((MOUSEHOOKSTRUCT *)lParam)->pt).y;
+      MousePoint = ((MOUSEHOOKSTRUCT *)lParam)->pt;
+      if (!ConvertMousePointToClient(&MousePoint))
+      {
+        return CallNextHookEx(ghMouseHook, Code, wParam, lParam);
+      }
+      gusMouseXPos = (UINT16)MousePoint.x;
+      gusMouseYPos = (UINT16)MousePoint.y;
       uiParam = gusMouseYPos;
       uiParam = uiParam << 16;
       uiParam = uiParam | gusMouseXPos;
@@ -159,8 +242,13 @@ LRESULT CALLBACK MouseHandler(int Code, WPARAM wParam, LPARAM lParam)
 	    break;
     case WM_LBUTTONUP
     : // Update the current mouse position
-      gusMouseXPos = (UINT16)(((MOUSEHOOKSTRUCT *)lParam)->pt).x;
-      gusMouseYPos = (UINT16)(((MOUSEHOOKSTRUCT *)lParam)->pt).y;
+      MousePoint = ((MOUSEHOOKSTRUCT *)lParam)->pt;
+      if (!ConvertMousePointToClient(&MousePoint))
+      {
+        return CallNextHookEx(ghMouseHook, Code, wParam, lParam);
+      }
+      gusMouseXPos = (UINT16)MousePoint.x;
+      gusMouseYPos = (UINT16)MousePoint.y;
       uiParam = gusMouseYPos;
       uiParam = uiParam << 16;
       uiParam = uiParam | gusMouseXPos;
@@ -173,8 +261,13 @@ LRESULT CALLBACK MouseHandler(int Code, WPARAM wParam, LPARAM lParam)
       break;
     case WM_RBUTTONDOWN
     : // Update the current mouse position
-      gusMouseXPos = (UINT16)(((MOUSEHOOKSTRUCT *)lParam)->pt).x;
-      gusMouseYPos = (UINT16)(((MOUSEHOOKSTRUCT *)lParam)->pt).y;
+      MousePoint = ((MOUSEHOOKSTRUCT *)lParam)->pt;
+      if (!ConvertMousePointToClient(&MousePoint))
+      {
+        return CallNextHookEx(ghMouseHook, Code, wParam, lParam);
+      }
+      gusMouseXPos = (UINT16)MousePoint.x;
+      gusMouseYPos = (UINT16)MousePoint.y;
       uiParam = gusMouseYPos;
       uiParam = uiParam << 16;
       uiParam = uiParam | gusMouseXPos;
@@ -187,8 +280,13 @@ LRESULT CALLBACK MouseHandler(int Code, WPARAM wParam, LPARAM lParam)
       break;
     case WM_RBUTTONUP
     : // Update the current mouse position
-      gusMouseXPos = (UINT16)(((MOUSEHOOKSTRUCT *)lParam)->pt).x;
-      gusMouseYPos = (UINT16)(((MOUSEHOOKSTRUCT *)lParam)->pt).y;
+      MousePoint = ((MOUSEHOOKSTRUCT *)lParam)->pt;
+      if (!ConvertMousePointToClient(&MousePoint))
+      {
+        return CallNextHookEx(ghMouseHook, Code, wParam, lParam);
+      }
+      gusMouseXPos = (UINT16)MousePoint.x;
+      gusMouseYPos = (UINT16)MousePoint.y;
       uiParam = gusMouseYPos;
       uiParam = uiParam << 16;
       uiParam = uiParam | gusMouseXPos;
@@ -201,8 +299,13 @@ LRESULT CALLBACK MouseHandler(int Code, WPARAM wParam, LPARAM lParam)
       break;
     case WM_MOUSEMOVE
     : // Update the current mouse position
-      gusMouseXPos = (UINT16)(((MOUSEHOOKSTRUCT *)lParam)->pt).x;
-      gusMouseYPos = (UINT16)(((MOUSEHOOKSTRUCT *)lParam)->pt).y;
+      MousePoint = ((MOUSEHOOKSTRUCT *)lParam)->pt;
+      if (!ConvertMousePointToClient(&MousePoint))
+      {
+        return CallNextHookEx(ghMouseHook, Code, wParam, lParam);
+      }
+      gusMouseXPos = (UINT16)MousePoint.x;
+      gusMouseYPos = (UINT16)MousePoint.y;
       uiParam = gusMouseYPos;
       uiParam = uiParam << 16;
       uiParam = uiParam | gusMouseXPos;
@@ -1517,7 +1620,7 @@ void RestrictMouseCursor(SGPRect *pRectangle)
 {
   // Make a copy of our rect....
   memcpy( &gCursorClipRect, pRectangle, sizeof( gCursorClipRect ) );
-  ClipCursor((RECT *)pRectangle);
+  ApplyMouseClipRect((RECT *)pRectangle);
 	fCursorWasClipped = TRUE;
 }
 
@@ -1531,13 +1634,13 @@ void RestoreCursorClipRect( void )
 {
   if ( fCursorWasClipped )
   {
-    ClipCursor( &gCursorClipRect );
+    ApplyMouseClipRect( &gCursorClipRect );
   }
 }
 
 void GetRestrictedClipCursor( SGPRect *pRectangle )
 {
-	GetClipCursor((RECT *) pRectangle );
+	memcpy( pRectangle, &gCursorClipRect, sizeof( *pRectangle ) );
 }
 
 BOOLEAN IsCursorRestricted( void )

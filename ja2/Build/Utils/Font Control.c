@@ -1,4 +1,4 @@
-#ifdef PRECOMPILEDHEADERS
+ï»¿#ifdef PRECOMPILEDHEADERS
 	#include "Utils All.h"
   #include "winfont.h"
 #else
@@ -223,17 +223,25 @@ BOOLEAN	InitializeFonts( )
 
 	InitWinFonts( );
 
-  //giSubTitleWinFont = CreateWinFont( -16, 0, 0,  0, FALSE, FALSE, FALSE, L"¼Ð·¢Åé", CHINESEBIG5_CHARSET );
-	giSubTitleWinFont = CreateWinFont( -16, 0, 0,  0, FALSE, FALSE, FALSE, L"·s²Ó©úÅé", CHINESEBIG5_CHARSET );
+	#if defined( RUSSIAN )
+		giSubTitleWinFont = CreateWinFont( -16, 0, 0, 0, FALSE, FALSE, FALSE, L"Arial", RUSSIAN_CHARSET );
+		SET_USE_WINFONTS( TRUE );
+	#else
+		//giSubTitleWinFont = CreateWinFont( -16, 0, 0,  0, FALSE, FALSE, FALSE, L"Ñ˜Ð Â·ÑžÐ•Ð¹", CHINESEBIG5_CHARSET );
+		giSubTitleWinFont = CreateWinFont( -16, 0, 0,  0, FALSE, FALSE, FALSE, L"Â·sÐ†Ð£Â©ÑŠÐ•Ð¹", CHINESEBIG5_CHARSET );
+		SET_USE_WINFONTS( TRUE );
+		SET_WINFONT( giSubTitleWinFont ); 
+		Color = FROMRGB( 255, 255, 255 );
+		SetWinFontForeColor( giSubTitleWinFont, &Color );
+		PrintWinFont( FRAME_BUFFER, giSubTitleWinFont, 10, 100, L"Font %s initialized", gzFontName );
+		InvalidateScreen();
+		RefreshScreen( NULL );
+		SET_USE_WINFONTS( FALSE );
+	#endif
 
-  SET_USE_WINFONTS( TRUE );
-  SET_WINFONT( giSubTitleWinFont ); 
-  Color = FROMRGB( 255, 255, 255 );
-  SetWinFontForeColor( giSubTitleWinFont, &Color );
-	PrintWinFont( FRAME_BUFFER, giSubTitleWinFont, 10, 100, L"Font %s initialized", gzFontName );
-	InvalidateScreen();
-	RefreshScreen( NULL );
-  SET_USE_WINFONTS( FALSE );
+	SET_WINFONT( giSubTitleWinFont );
+	Color = FROMRGB( 255, 255, 255 );
+	SetWinFontForeColor( giSubTitleWinFont, &Color );
 
 #endif
 
@@ -366,5 +374,6 @@ INT16 WFStringPixLength( UINT16 *string,INT32 UseFont )
 	  return( StringPixLength( string, UseFont ) );
   }
 }
+
 
 

@@ -27,8 +27,9 @@
 		#include "WordWrap.h"
 		#include "video.h"
 		#include "Button Sound Control.h"
+		#include "Font Control.h"
+		#include "winfont.h"
 		#ifdef _JA2_RENDER_DIRTY
-			#include "Font Control.h"
 			#include "Render Dirty.h"
 			#include "utilities.h"
 		#endif
@@ -3535,7 +3536,14 @@ void DrawTextOnButton(GUI_BUTTON *b)
 		{
 			yp+= b->bTextYSubOffSet;
 			xp+= b->bTextXSubOffSet;
-			mprintf(xp, yp, b->string);
+			if( USE_WINFONTS( ) )
+			{
+				WinFont_mprintf( GET_WINFONT( ), xp, yp, b->string );
+			}
+			else
+			{
+				mprintf(xp, yp, b->string);
+			}
 		}
 #else
 		if(b->fMultiColor)

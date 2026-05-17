@@ -318,21 +318,10 @@ WRAPPED_STRING *LineWrap(UINT32 ulFont, UINT16 usLineWidthPixels, UINT16 *pusLin
 			}
 			else
 			{
-				CHAR	zText[1024];
-
-				sprintf( zText, "LineWrap() Error!  The string ( %S ) has a word ( %S ) that is too long to fit into the required width of %d!  Please fix!!", pString, &TempString[usCurIndex], usLineWidthPixels  );
-
-				DebugMsg( TOPIC_JA2, DBG_LEVEL_3, zText );
-
-				//error
-				usLineWidthPixels = 1 + WFStringPixLength( &TempString[usCurIndex], ulFont);
+				DebugMsg( TOPIC_JA2, DBG_LEVEL_3, String( "LineWrap(): falling back to single-character wrapping for font %u width %u", ulFont, usLineWidthPixels ) );
 
 				*pusLineWidthIfWordIsWiderThenWidth = usLineWidthPixels;
-
-				fTheStringIsToLong = TRUE;
-
-				usCurIndex--;
-				usDestIndex--;
+				return LineWrapForSingleCharWords( ulFont, usLineWidthPixels, pusLineWidthIfWordIsWiderThenWidth, TempString );
 			}
 		}
 		usCurIndex++;

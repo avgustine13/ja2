@@ -105,9 +105,11 @@ static LPDIRECTDRAWSURFACE2   gpFrameBuffer = NULL;
 #ifdef WINDOWED_MODE
 
 static LPDIRECTDRAWSURFACE    _gpBackBuffer = NULL;
+static LPDIRECTDRAWCLIPPER    gpPrimaryClipper = NULL;
 
 extern RECT									rcWindow;
 
+static void UpdateWindowedPrimaryRect(void);
 
 #endif
 
@@ -227,6 +229,35 @@ static void SetupRGB565SystemSurfaceDesc(DDSURFACEDESC *pSurfaceDescription, UIN
 	pSurfaceDescription->ddpfPixelFormat = PixelFormat;
 }
 
+#ifdef WINDOWED_MODE
+static void UpdateWindowedPrimaryRect(void)
+{
+	RECT ClientRect;
+
+	if (ghWindow == NULL)
+	{
+		return;
+	}
+
+	if (!GetClientRect(ghWindow, &ClientRect))
+	{
+		return;
+	}
+
+	if (!ClientToScreen(ghWindow, (LPPOINT)&ClientRect))
+	{
+		return;
+	}
+
+	if (!ClientToScreen(ghWindow, ((LPPOINT)&ClientRect) + 1))
+	{
+		return;
+	}
+
+	rcWindow = ClientRect;
+}
+#endif
+
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -336,6 +367,9 @@ BOOLEAN InitializeVideoManager(HINSTANCE hInstance, UINT16 usCommandShow, void *
   ShowWindow(hWindow, usCommandShow);
   UpdateWindow(hWindow);
   SetFocus(hWindow);
+#ifdef WINDOWED_MODE
+  UpdateWindowedPrimaryRect();
+#endif
   
   /////////////////////////////////////////////////////////////////////////////////////////////////
   //
@@ -426,6 +460,27 @@ BOOLEAN InitializeVideoManager(HINSTANCE hInstance, UINT16 usCommandShow, void *
   ReturnCode = IDirectDrawSurface_QueryInterface(_gpPrimarySurface, &IID_IDirectDrawSurface2, &gpPrimarySurface);
   if (ReturnCode != DD_OK)
   { 
+    DirectXAttempt ( ReturnCode, __LINE__, __FILE__ );
+    return FALSE;
+  }
+
+  ReturnCode = IDirectDraw2_CreateClipper(gpDirectDrawObject, 0, &gpPrimaryClipper, NULL);
+  if (ReturnCode != DD_OK)
+  {
+    DirectXAttempt ( ReturnCode, __LINE__, __FILE__ );
+    return FALSE;
+  }
+
+  ReturnCode = IDirectDrawClipper_SetHWnd(gpPrimaryClipper, 0, ghWindow);
+  if (ReturnCode != DD_OK)
+  {
+    DirectXAttempt ( ReturnCode, __LINE__, __FILE__ );
+    return FALSE;
+  }
+
+  ReturnCode = IDirectDrawSurface_SetClipper(_gpPrimarySurface, gpPrimaryClipper);
+  if (ReturnCode != DD_OK)
+  {
     DirectXAttempt ( ReturnCode, __LINE__, __FILE__ );
     return FALSE;
   }
@@ -672,6 +727,13 @@ void ShutdownVideoManager(void)
   IDirectDrawSurface2_Release(gMouseCursorBackground[0].pSurface);
   IDirectDrawSurface2_Release(gpBackBuffer);
   IDirectDrawSurface2_Release(gpPrimarySurface);
+#ifdef WINDOWED_MODE
+  if (gpPrimaryClipper != NULL)
+  {
+    IDirectDrawClipper_Release(gpPrimaryClipper);
+    gpPrimaryClipper = NULL;
+  }
+#endif
 
   IDirectDraw2_RestoreDisplayMode( gpDirectDrawObject );
   IDirectDraw2_SetCooperativeLevel(gpDirectDrawObject, ghWindow, DDSCL_NORMAL );
@@ -2164,6 +2226,7 @@ void RefreshScreen(void *DummyVariable)
   // Step (1) - Flip pages
   //
 #ifdef WINDOWED_MODE
+  UpdateWindowedPrimaryRect();
 
   do
   {
@@ -2211,6 +2274,17 @@ void RefreshScreen(void *DummyVariable)
   //
   // Step (2) - Copy Primary Surface to the Back Buffer
   //
+#ifdef WINDOWED_MODE
+	if ( gfRenderScroll )
+	{
+		gfRenderScroll = FALSE;
+		gfScrollStart  = FALSE;
+	}
+
+	guiDirtyRegionCount = 0;
+	guiDirtyRegionExCount = 0;
+	gfForceFullScreenRefresh = FALSE;
+#else
 	if ( gfRenderScroll )
 	{
 		Region.left = 0;
@@ -2378,6 +2452,7 @@ void RefreshScreen(void *DummyVariable)
 	}
 
 	guiDirtyRegionExCount = 0;
+#endif
 
 
 ENDOFLOOP:

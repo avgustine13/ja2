@@ -1,4 +1,4 @@
-// font.c
+Ôªø// font.c
 #ifdef JA2_PRECOMPILED_HEADERS
 	#include "JA2 SGP ALL.H"
 #elif defined( WIZ8_PRECOMPILED_HEADERS )
@@ -1280,7 +1280,8 @@ FontTranslationTable *CreateEnglishTransTable(  )
   pTable = (FontTranslationTable *)MemAlloc(sizeof(FontTranslationTable));
 	#ifdef JA2
 		// ha ha, we have more than Wizardry now (again)
-		pTable->usNumberOfSymbols = 172;
+		// The JA2 translation table below contains 173 entries.
+		pTable->usNumberOfSymbols = 173;
 	#else
 		pTable->usNumberOfSymbols = 155;
 	#endif
@@ -1555,86 +1556,86 @@ FontTranslationTable *CreateEnglishTransTable(  )
 	*temp = 1132;
 	temp++;
 	// END OF FUNKY RUSSIAN STUFF
-	*temp = 196; // ƒ 
+	*temp = 0x0414; // –î
 	temp++;
-	*temp = 192; // ¿ 
+	*temp = 0x0410; // –ê
 	temp++;
-	*temp = 193; // ¡ 
+	*temp = 0x0411; // –ë
 	temp++;
-	*temp = 194; // ¬
+	*temp = 0x0412; // –í
 	temp++;
-	*temp = 199; // «
+	*temp = 0x0417; // –ó
 	temp++;
-	*temp = 203; // À
+	*temp = 0x041B; // –õ
 	temp++;
-	*temp = 200; // »
+	*temp = 0x0418; // –ò
 	temp++;
-	*temp = 201; // …				140
+	*temp = 0x0419; // –ô				140
 	temp++;
-	*temp = 202; //  
+	*temp = 0x041A; // –ö
 	temp++;
-	*temp = 207; // œ
+	*temp = 0x041F; // –ü
 	temp++;
-	*temp = 214; // ÷
+	*temp = 0x0426; // –¶
 	temp++;
-	*temp = 210; // “
+	*temp = 0x0422; // –¢
 	temp++;
-	*temp = 211; // ”
+	*temp = 0x0423; // –£
 	temp++;
-	*temp = 212; // ‘
+	*temp = 0x0424; // –§
 	temp++;
-	*temp = 220; // ‹
+	*temp = 0x042C; // –¨
 	temp++;
-	*temp = 217; // Ÿ
+	*temp = 0x0429; // –©
 	temp++;
-	*temp = 218; // ⁄
+	*temp = 0x042A; // –™
 	temp++;
-	*temp = 219; // €				150
+	*temp = 0x042B; // –´				150
 	temp++;
 
-	*temp = 228; // ‰
+	*temp = 0x0434; // –¥
 	temp++;
-	*temp = 224; // ‡
+	*temp = 0x0430; // –∞
 	temp++;
-	*temp = 225; // ·
+	*temp = 0x0431; // –±
 	temp++;
-	*temp = 226; // ‚
+	*temp = 0x0432; // –≤
 	temp++;
-	*temp = 231; // Á
+	*temp = 0x0437; // –∑
 	temp++;
-	*temp = 235; // Î
+	*temp = 0x043B; // –ª
 	temp++;
-	*temp = 232; // Ë
+	*temp = 0x0438; // –∏
 	temp++;
-	*temp = 233; // È
+	*temp = 0x0439; // –π
 	temp++;
-	*temp = 234; // Í
+	*temp = 0x043A; // –∫
 	temp++;
-	*temp = 239; // Ô				160
+	*temp = 0x043F; // –ø				160
 	temp++;
-	*temp = 246; // ˆ
+	*temp = 0x0446; // —Ü
 	temp++;
-	*temp = 242; // Ú
+	*temp = 0x0442; // —Ç
 	temp++;
-	*temp = 243; // Û
+	*temp = 0x0443; // —É
 	temp++;
-	*temp = 244; // Ù
+	*temp = 0x0444; // —Ñ
 	temp++;
-	*temp = 252; // ¸
+	*temp = 0x044C; // —å
 	temp++;
-	*temp = 249; // ˘
+	*temp = 0x0449; // —â
 	temp++;
-	*temp = 250; // ˙
+	*temp = 0x044A; // —ä
 	temp++;
-	*temp = 251; // ˚
+	*temp = 0x044B; // —ã
 	temp++;
-	*temp = 204; // Ã
+	*temp = 0x041C; // –ú
 	temp++;
-	*temp = 206; // Œ				170
+	*temp = 0x041E; // –û				170
 	temp++;
-	*temp = 236; // Ï
+	*temp = 0x043C; // –º
 	temp++;
-	*temp = 238; // Ó
+	*temp = 0x043E; // –æ
 	temp++;
 
 #else
@@ -2652,4 +2653,5 @@ FontTranslationTable *pTransTab;
   UnRegisterDebugTopic(TOPIC_FONT_HANDLER, "Font Manager");
   MemFree(pFManager);
 }	*/
+
 

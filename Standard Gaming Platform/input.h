@@ -71,6 +71,7 @@ extern void					QueueEvent(UINT16 ubInputEvent, UINT32 usParam, UINT32 uiParam);
 
 extern void					KeyDown(UINT32 usParam, UINT32 uiParam);
 extern void					KeyUp(UINT32 usParam, UINT32 uiParam);
+extern BOOL					SGPMouseGetPos(LPPOINT pPoint);
 
 extern void					EnableDoubleClk(void);
 extern void					DisableDoubleClk(void);
@@ -132,6 +133,10 @@ extern BOOLEAN		gfSGPInputReceived;
 #define _EvShiftDown(a)    (((InputAtom *)(a))->usKeyState & SHIFT_DOWN)
 #define _EvCtrlDown(a)     (((InputAtom *)(a))->usKeyState & CTRL_DOWN)
 #define _EvAltDown(a)      (((InputAtom *)(a))->usKeyState & ALT_DOWN)
+
+#if defined(JA2) && defined(WINDOWED_MODE)
+#define GetCursorPos SGPMouseGetPos
+#endif
 
 #ifdef __cplusplus
 }

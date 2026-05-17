@@ -64,7 +64,7 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <SupportJustMyCode>false</SupportJustMyCode>
-      <AdditionalOptions>/Zc:preprocessor- %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/Zc:preprocessor- /source-charset:windows-1251 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -98,7 +98,7 @@ if not exist "$(OutDir)..\NoIntro.txt" copy /Y "$(ProjectDir)bin\NoIntro.txt" "$
       <CompileAsWinRT>false</CompileAsWinRT>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <AdditionalOptions>/Zc:preprocessor- %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/Zc:preprocessor- /source-charset:windows-1251 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
